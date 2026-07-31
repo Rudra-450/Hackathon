@@ -330,7 +330,7 @@ If an error occurs:
 
 ---
 
-# 🤝 Contributors
+# Contributors
 
 - Himanshu chaudhary
 - Pulkit Singh
@@ -339,13 +339,13 @@ If an error occurs:
 
 ---
 
-# 📄 License
+#  License
 
 This project is developed for educational and hackathon purposes. You are free to use and modify it with proper attribution.
 
 ---
 
-# ⭐ Acknowledgements
+#  Acknowledgements
 
 Special thanks to:
 
@@ -356,4 +356,4 @@ Special thanks to:
 
 ---
 
-## Made with ❤️ using ESP32
+## Made with using ESP32
