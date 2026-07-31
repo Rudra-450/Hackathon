@@ -1,130 +1,356 @@
 # Hackathon
-Our project is Air Watchtower, an IoT-based environmental monitoring system. The objective of this project is to continuously monitor environmental conditions such as:  Temperature Humidity Air Quality Noise Level  The collected data is displayed on an LCD screen and also sent to the Serial Monitor for real-time observation."
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <DHT.h>
+#  Air Watchtower
 
-#define DHT_PIN 4
-#define MQ135_PIN 34
-#define SOUND_PIN 35
-#define DHT_TYPE DHT11
+An **ESP32-based IoT Environmental Monitoring System** that continuously monitors **temperature, humidity, air quality, and environmental noise** using multiple sensors. The system displays real-time readings on a **16×2 I2C LCD** and outputs detailed information to the **Serial Monitor**.
 
-DHT dht(DHT_PIN, DHT_TYPE);
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+---
 
-// Read MQ135 several times to reduce fluctuations
-int readAirQuality() {
-  long sum = 0;
+#  Project Overview
 
-  for (int i = 0; i < 20; i++) {
-    sum += analogRead(MQ135_PIN);
-    delay(5);
-  }
+Air pollution and noise pollution are major concerns in urban and industrial areas. The **Air Watchtower** project provides a simple, low-cost, and real-time monitoring solution using the ESP32 microcontroller.
 
-  return sum / 20;
-}
+The system collects environmental data from multiple sensors, processes the readings, and displays the results locally on an LCD screen.
 
-// Measure sound by finding signal variation
-int readSoundLevel() {
-  int minValue = 4095;
-  int maxValue = 0;
+---
 
-  unsigned long startTime = millis();
+#  Features
 
-  while (millis() - startTime < 100) {
-    int sensorValue = analogRead(SOUND_PIN);
+-  Real-time Temperature Monitoring
+-  Real-time Humidity Monitoring
+-  Air Quality Measurement using MQ135
+-  Environmental Noise Monitoring
+-  Live Data Display on 16×2 I2C LCD
+-  Serial Monitor Output for Debugging
+-  Modular Code Structure
+-  Noise Reduction using Averaging Technique
+-  DHT Sensor Error Detection
 
-    if (sensorValue < minValue)
-      minValue = sensorValue;
+---
 
-    if (sensorValue > maxValue)
-      maxValue = sensorValue;
-  }
+# 🛠 Hardware Components
 
-  return maxValue - minValue;
-}
+| Component | Quantity |
+|------------|----------|
+| ESP32 Development Board | 1 |
+| DHT11 Temperature & Humidity Sensor | 1 |
+| MQ135 Air Quality Sensor | 1 |
+| Sound Sensor Module | 1 |
+| 16×2 I2C LCD Display | 1 |
+| Breadboard | 1 |
+| Jumper Wires | As Required |
+| USB Cable | 1 |
 
-void setup() {
+---
 
-  Serial.begin(115200);
+#  Software Requirements
 
-  dht.begin();
+- Arduino IDE
+- ESP32 Board Package
+- USB Driver for ESP32
 
-  pinMode(MQ135_PIN, INPUT);
-  pinMode(SOUND_PIN, INPUT);
+### Required Libraries
 
-  Wire.begin(21, 22);
+Install the following libraries from the Arduino Library Manager:
 
-  lcd.init();
-  lcd.backlight();
+- Wire
+- LiquidCrystal_I2C
+- DHT Sensor Library (by Adafruit)
+- Adafruit Unified Sensor
 
-  lcd.print("Air Watchtower");
-  lcd.setCursor(0, 1);
-  lcd.print("Starting...");
+---
 
-  Serial.println("System Starting...");
-  delay(5000);   // MQ135 warm-up
+#  Pin Connections
 
-  lcd.clear();
-}
+| Device | ESP32 GPIO |
+|----------|-----------|
+| DHT11 Data | GPIO 4 |
+| MQ135 Analog Output | GPIO 34 |
+| Sound Sensor Analog Output | GPIO 35 |
+| LCD SDA | GPIO 21 |
+| LCD SCL | GPIO 22 |
+| VCC | 3.3V / 5V (depending on module) |
+| GND | GND |
 
-void loop() {
+---
 
-  float temp = dht.readTemperature();
-  float hum = dht.readHumidity();
+#  Project Structure
 
-  if (isnan(temp) || isnan(hum)) {
+```
+Air-Watchtower/
+│
+├── AirWatchtower.ino
+├── README.md
+└── images/
+    ├── circuit.png
+    ├── prototype.jpg
+    └── lcd_output.jpg
+```
 
-    Serial.println("Sensor Error");
+---
 
-    lcd.clear();
-    lcd.print("DHT Error");
-    lcd.setCursor(0, 1);
-    lcd.print("Check Sensor");
+#  How It Works
 
-    delay(2000);
-    return;
-  }
+## Step 1
 
-  int air = readAirQuality();
-  int noise = readSoundLevel();
+ESP32 initializes all sensors.
 
-  Serial.println("----------------------");
-  Serial.print("Temperature : ");
-  Serial.print(temp);
-  Serial.println(" C");
+- DHT11
+- MQ135
+- Sound Sensor
+- LCD
 
-  Serial.print("Humidity    : ");
-  Serial.print(hum);
-  Serial.println(" %");
+---
 
-  Serial.print("Air Value   : ");
-  Serial.println(air);
+## Step 2
 
-  Serial.print("Noise Value : ");
-  Serial.println(noise);
+MQ135 is allowed to warm up for 5 seconds to stabilize its readings.
 
-  if (air < 1200)
-    Serial.println("Air : GOOD");
-  else if (air < 2200)
-    Serial.println("Air : MODERATE");
-  else
-    Serial.println("Air : POOR");
+---
 
-  lcd.clear();
+## Step 3
 
-  lcd.setCursor(0, 0);
-  lcd.print("T:");
-  lcd.print(temp, 1);
-  lcd.print(" H:");
-  lcd.print(hum, 0);
+Temperature and humidity are collected from the DHT11 sensor.
 
-  lcd.setCursor(0, 1);
-  lcd.print("AQ:");
-  lcd.print(air);
+---
 
-  lcd.print(" N:");
-  lcd.print(noise);
+## Step 4
 
-  delay(2000);
-}
+The MQ135 sensor is read 20 times, and the average value is calculated to reduce fluctuations.
+
+---
+
+## Step 5
+
+The sound sensor is sampled continuously for 100 milliseconds.
+
+The code records:
+
+- Maximum signal
+- Minimum signal
+
+The difference between these values represents the sound intensity.
+
+---
+
+## Step 6
+
+The sensor readings are displayed on:
+
+- LCD Display
+- Serial Monitor
+
+---
+
+## Step 7
+
+The process repeats every 2 seconds.
+
+---
+
+#  Program Flow
+
+```
+Power ON
+     │
+     ▼
+Initialize Sensors
+     │
+     ▼
+Initialize LCD
+     │
+     ▼
+MQ135 Warm-up
+     │
+     ▼
+Read Temperature
+     │
+     ▼
+Read Humidity
+     │
+     ▼
+Read Air Quality
+     │
+     ▼
+Read Sound Level
+     │
+     ▼
+Display on LCD
+     │
+     ▼
+Print on Serial Monitor
+     │
+     ▼
+Repeat
+```
+
+---
+
+# Sample Serial Output
+
+```
+----------------------
+Temperature : 29.4 C
+Humidity    : 67 %
+Air Value   : 1458
+Noise Value : 162
+
+Air : MODERATE
+```
+
+---
+
+# LCD Output
+
+```
+T:29.4 H:67
+AQ:1458 N:162
+```
+
+---
+
+#  Code Highlights
+
+## Air Quality Averaging
+
+The MQ135 sensor is read 20 times.
+
+```cpp
+sum += analogRead(MQ135_PIN);
+```
+
+The average value is returned.
+
+This helps reduce random fluctuations.
+
+---
+
+## Noise Measurement
+
+Instead of taking a single reading, the system calculates:
+
+```
+Noise = Maximum Reading − Minimum Reading
+```
+
+This provides a better estimate of environmental sound intensity.
+
+---
+
+## Sensor Error Detection
+
+The code checks whether the DHT sensor returns valid data.
+
+```cpp
+if(isnan(temp) || isnan(hum))
+```
+
+If an error occurs:
+
+- LCD displays an error message
+- Invalid data is ignored
+
+---
+
+#  Air Quality Classification
+
+| MQ135 Value | Status |
+|-------------|---------|
+| < 1200 | GOOD |
+| 1200 – 2199 | MODERATE |
+| ≥ 2200 | POOR |
+
+> **Note:** These thresholds are demonstration values and should be calibrated for accurate environmental measurements.
+
+---
+
+#  Advantages
+
+- Simple and low-cost
+- Easy to build
+- Real-time monitoring
+- Modular and maintainable code
+- Expandable for IoT applications
+- Low power consumption
+- User-friendly LCD display
+
+---
+
+#  Limitations
+
+- DHT11 has limited accuracy.
+- MQ135 requires calibration for precise gas concentration measurements.
+- Noise readings indicate relative intensity rather than calibrated decibels (dB).
+- Data is displayed locally and not stored or transmitted.
+
+---
+
+# Future Enhancements
+
+- Wi-Fi-based cloud monitoring
+- Mobile application
+- Blynk or MQTT integration
+- ThingSpeak dashboard
+- Email/SMS alerts
+- Buzzer for hazardous conditions
+- SD card data logging
+- Real-time clock (RTC)
+- GPS-based environmental mapping
+- AI-based pollution prediction
+
+---
+
+#  Technologies Used
+
+- ESP32
+- Arduino IDE
+- Embedded C++
+- I2C Communication
+- Analog-to-Digital Conversion (ADC)
+- DHT11 Sensor
+- MQ135 Sensor
+- Sound Sensor
+
+---
+
+# Applications
+
+- Smart Cities
+- Environmental Monitoring
+- Schools and Colleges
+- Industries
+- Laboratories
+- Offices
+- Smart Homes
+- Pollution Monitoring
+- Research Projects
+- IoT Demonstrations
+
+---
+
+# 🤝 Contributors
+
+- Himanshu chaudhary
+- Pulkit Singh
+- Rishi Chaudhary
+- Rudra kumar pathak
+
+---
+
+# 📄 License
+
+This project is developed for educational and hackathon purposes. You are free to use and modify it with proper attribution.
+
+---
+
+# ⭐ Acknowledgements
+
+Special thanks to:
+
+- Arduino Community
+- ESP32 Open Source Community
+- Adafruit Libraries
+- Open-source IoT developers
+
+---
+
+## Made with ❤️ using ESP32
