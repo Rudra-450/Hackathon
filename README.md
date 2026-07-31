@@ -1,5 +1,8 @@
 # Hackathon
 #  Air Watchtower
+---------
+# Problem Statement:
+Poor ventilation, excessive heat, high noise levels, and stale indoor air significantly affect **comfort, health, productivity, and concentration** in shared indoor spaces such as **classrooms, hostels, libraries, and meeting rooms**. Since these environmental factors are often not monitored continuously, occupants may remain unaware of unhealthy conditions that reduce learning efficiency and overall well-being.
 
 An **ESP32-based IoT Environmental Monitoring System** that continuously monitors **temperature, humidity, air quality, and environmental noise** using multiple sensors. The system displays real-time readings on a **16×2 I2C LCD** and outputs detailed information to the **Serial Monitor**.
 
